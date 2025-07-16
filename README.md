@@ -143,4 +143,3 @@ A simple ASP.NET Core MVC project for user registration, profile management, and
 ## Security
 
 - Passwords are hashed using SHA256 before storing in the database.
-- Do not commit sensitive information (like real connection strings) to your repository.
