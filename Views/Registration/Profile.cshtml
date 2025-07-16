@@ -1,22 +1,33 @@
-﻿@{
+@{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "User Profile";
 }
 
-<div class="container mt-4">
-    <h2>Search Candidate</h2>
-    <div class="position-relative">
-        <input id="candidateSearch" class="form-control pe-5" placeholder="Type by name..." />
-        <div id="searchSpinner" class="spinner-border spinner-border-sm text-primary position-absolute end-0 top-50 translate-middle-y d-none">
-            <span class="visually-hidden">Loading...</span>
+<div class="container py-5" style="background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%); min-height: 90vh;">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0 rounded-4 p-4" style="background: #fff;">
+                <div class="card-body">
+                    <h2 class="mb-4 text-center" style="font-weight: 700; color: #2d3a4b; letter-spacing: 1px;">Search Candidate</h2>
+                    <div class="position-relative mb-3">
+                        <input id="candidateSearch" class="form-control form-control-lg pe-5 rounded-pill" placeholder="Type by name..." style="box-shadow: 0 2px 8px rgba(44,62,80,0.05);" />
+                        <div id="searchSpinner" class="spinner-border spinner-border-sm text-primary position-absolute end-0 top-50 translate-middle-y d-none">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <div id="candidateFormContainer" class="mt-4">
+                        <!-- AJAX will inject the partial here -->
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-    <div id="candidateFormContainer" class="mt-4">
-        <!-- AJAX will inject the partial here -->
     </div>
 </div>
 
 <style>
+body {
+    background: #f4f7fb;
+}
 #candidateSearch.loading-spinner {
     background-image: url('https://i.stack.imgur.com/FhHRx.gif');
     background-repeat: no-repeat;
@@ -25,17 +36,28 @@
     background-color: #fff;
 }
 .user-image {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     object-fit: cover;
     border-radius: 50%;
-    margin-right: 10px;
+    margin-right: 12px;
+    border: 2px solid #e0e7ef;
+    box-shadow: 0 1px 4px rgba(44,62,80,0.08);
     vertical-align: middle;
 }
 .search-result {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+.search-result:hover {
+    background: #f0f4fa;
+}
+.card {
+    border-radius: 1.5rem !important;
 }
 </style>
 
@@ -65,10 +87,13 @@
                 },
                 minLength: 1,
                 select: function (e, ui) {
+                    // Set the input to the full name (label) instead of the ID
+                    $(this).val(ui.item.label);
                     $.get('/Registration/GetProfilePartial', { id: ui.item.value })
                         .done(function (html) {
                             $("#candidateFormContainer").html(html);
                         });
+                    return false;
                 }
             }).autocomplete("instance")._renderItem = function (ul, item) {
                 return $("<li>")
