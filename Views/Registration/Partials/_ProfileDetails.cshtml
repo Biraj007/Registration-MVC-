@@ -1,0 +1,75 @@
+@model Registration_MVC.Models.ProfileFullDetails
+
+<div class="d-flex align-items-center mb-3">
+    <img src="@(string.IsNullOrEmpty(Model.Registration.ImagePath) ? "/uploads/default.png" : Model.Registration.ImagePath)" alt="Profile" style="width:56px;height:56px;border-radius:50%;object-fit:cover;margin-right:16px;" />
+    <div>
+        <div style="font-size:1.1em;font-weight:bold;">@Model.Registration.FirstName @Model.Registration.LastName</div>
+        <div style="color:#666;">
+            @if (!string.IsNullOrEmpty(Model.Registration.DOB) && DateTime.TryParse(Model.Registration.DOB, out var dob)) {
+                @dob.ToString("dd-MM-yyyy")
+            } else {
+                @Model.Registration.DOB
+            }
+        </div>
+        <div style="color:#666;">@Model.Registration.Email</div>
+    </div>
+</div>
+
+@{
+    bool isUpdate = !string.IsNullOrEmpty(Model.Details.Aadhar_No) || !string.IsNullOrEmpty(Model.Details.Pan_No) || !string.IsNullOrEmpty(Model.Details.Gender) || !string.IsNullOrEmpty(Model.Details.Highest_Qualification) || !string.IsNullOrEmpty(Model.Details.Company_Name) || !string.IsNullOrEmpty(Model.Details.Dept) || !string.IsNullOrEmpty(Model.Details.Post) || !string.IsNullOrEmpty(Model.Details.Mode);
+}
+
+<form id="updateProfileForm" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input asp-for="Registration.UserID" type="hidden" />
+    <input asp-for="Details.UserID" type="hidden" />
+
+    <h5>Additional Details</h5>
+    <div class="mb-2">
+        <label for="Aadhar_No">Aadhar No</label>
+        <input asp-for="Details.Aadhar_No" class="form-control" id="Aadhar_No" />
+        <span asp-validation-for="Details.Aadhar_No" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <label for="Pan_No">PAN No</label>
+        <input asp-for="Details.Pan_No" class="form-control" id="Pan_No" />
+        <span asp-validation-for="Details.Pan_No" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <label for="Gender">Gender</label>
+        <select asp-for="Details.Gender" class="form-control" id="Gender">
+            <option value="">-- Select --</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+        </select>
+        <span asp-validation-for="Details.Gender" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <label for="Highest_Qualification">Highest Qualification</label>
+        <input asp-for="Details.Highest_Qualification" class="form-control" id="Highest_Qualification" />
+        <span asp-validation-for="Details.Highest_Qualification" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <label for="Company_Name">Company Name</label>
+        <input asp-for="Details.Company_Name" class="form-control" id="Company_Name" />
+        <span asp-validation-for="Details.Company_Name" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <label for="Dept">Department</label>
+        <input asp-for="Details.Dept" class="form-control" id="Dept" />
+        <span asp-validation-for="Details.Dept" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <label for="Post">Post</label>
+        <input asp-for="Details.Post" class="form-control" id="Post" />
+        <span asp-validation-for="Details.Post" class="text-danger"></span>
+    </div>
+    <div class="mb-2">
+        <label for="Mode">Mode</label>
+        <input asp-for="Details.Mode" class="form-control" id="Mode" />
+        <span asp-validation-for="Details.Mode" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">@(isUpdate ? "Update" : "Save")</button>
+</form> 

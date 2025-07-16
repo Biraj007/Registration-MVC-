@@ -1,0 +1,109 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "User Profile";
+}
+
+<div class="container mt-4">
+    <h2>Search Candidate</h2>
+    <div class="position-relative">
+        <input id="candidateSearch" class="form-control pe-5" placeholder="Type by name..." />
+        <div id="searchSpinner" class="spinner-border spinner-border-sm text-primary position-absolute end-0 top-50 translate-middle-y d-none">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    <div id="candidateFormContainer" class="mt-4">
+        <!-- AJAX will inject the partial here -->
+    </div>
+</div>
+
+<style>
+#candidateSearch.loading-spinner {
+    background-image: url('https://i.stack.imgur.com/FhHRx.gif');
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 20px 20px;
+    background-color: #fff;
+}
+.user-image {
+    width: 32px;
+    height: 32px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+.search-result {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+</style>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" />
+    <script>
+        $(function () {
+            $("#candidateSearch").autocomplete({
+                source: function (req, resp) {
+                    $("#searchSpinner").removeClass("d-none");
+                    $.getJSON('/Registration/SearchCandidates', { term: req.term })
+                        .done(function (data) {
+                            resp($.map(data, function (item) {
+                                return {
+                                    label: item.label,
+                                    value: item.userID,
+                                    imagePath: item.imagePath
+                                };
+                            }));
+                        })
+                        .always(function () {
+                            $("#searchSpinner").addClass("d-none");
+                        });
+                },
+                minLength: 1,
+                select: function (e, ui) {
+                    $.get('/Registration/GetProfilePartial', { id: ui.item.value })
+                        .done(function (html) {
+                            $("#candidateFormContainer").html(html);
+                        });
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append(`<div class='search-result'><img src='${item.imagePath || "/uploads/default.png"}' class='user-image' /><span>${item.label}</span></div>`)
+                    .appendTo(ul);
+            };
+
+            $(document).on("submit", "#updateProfileForm", function (e) {
+                e.preventDefault();
+                var $form = $(this),
+                    data = new FormData(this);
+
+                $.ajax({
+                    url: $form.attr("action") || '/Registration/UpdateProfileFullDetails',
+                    type: "POST",
+                    processData: false,
+                    contentType: false,
+                    data: data,
+                    headers: {
+                        RequestVerificationToken: $form.find("input[name=__RequestVerificationToken]").val()
+                    }
+                })
+                .done(function (res) {
+                    if (res.success) {
+                        $("#candidateSearch").val("");
+                        $("#candidateFormContainer").html("");
+                        alert("Updated successfully!");
+                    } else {
+                        alert("Error: " + res.message);
+                    }
+                })
+                .fail(function () {
+                    alert("Error while updating candidate.");
+                });
+            });
+        });
+    </script>
+}

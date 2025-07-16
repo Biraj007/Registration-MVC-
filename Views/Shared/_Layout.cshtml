@@ -1,0 +1,58 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - Registration MVC</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar-custom {
+            background-color: #333;
+            padding: 12px;
+            display: flex;
+            justify-content: center;
+        }
+
+            .navbar-custom a {
+                color: #fff;
+                margin: 0 15px;
+                text-decoration: none;
+                font-weight: bold;
+                transition: 0.3s ease;
+            }
+
+                .navbar-custom a:hover {
+                    color: #ccc;
+                }
+
+                .navbar-custom a.active {
+                    border-bottom: 2px solid #fff;
+                }
+
+        main {
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar-custom">
+        <a href="/Registration/Index" class="@(ViewContext.RouteData.Values["action"].ToString() == "Index" ? "active" : "")">Registration</a>
+        <a href="/Registration/List" class="@(ViewContext.RouteData.Values["action"].ToString() == "List" ? "active" : "")">List</a>
+        <a href="/Registration/Profile" class="@(ViewContext.RouteData.Values["action"].ToString() == "Profile" ? "active" : "")">User Profile</a>
+    </div>
+
+    <main role="main" class="container">
+        @RenderBody()
+        @RenderSection("Scripts", required: false)
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
