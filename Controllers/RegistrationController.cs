@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using Registration_MVC.Models;
@@ -138,6 +138,30 @@ namespace Registration_MVC.Controllers
         {
             try
             {
+                // Get the image path for the user
+                string? imagePath = null;
+                using (SqlConnection con = new(_config.GetConnectionString("DefaultConnection")))
+                {
+                    con.Open();
+                    SqlCommand cmd = new("sp_GetUserById", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@UserID", UserID);
+                    using SqlDataReader dr = cmd.ExecuteReader();
+                    if (dr.Read())
+                    {
+                        imagePath = dr["ImagePath"]?.ToString();
+                    }
+                }
+                // Delete the image file if it exists and is not empty
+                if (!string.IsNullOrEmpty(imagePath))
+                {
+                    string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imagePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+                // Delete the user from the database
                 using (SqlConnection con = new(_config.GetConnectionString("DefaultConnection")))
                 {
                     con.Open();
@@ -171,6 +195,16 @@ namespace Registration_MVC.Controllers
                 // Handle new image upload if provided
                 if (ProfilePic != null)
                 {
+                    // Delete old image if it exists and is not default
+                    if (!string.IsNullOrEmpty(ImagePath) && !ImagePath.EndsWith("default.png"))
+                    {
+                        string oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", ImagePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                        if (System.IO.File.Exists(oldFilePath))
+                        {
+                            System.IO.File.Delete(oldFilePath);
+                        }
+                    }
+
                     string uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
                     if (!Directory.Exists(uploads)) Directory.CreateDirectory(uploads);
 
@@ -228,7 +262,7 @@ namespace Registration_MVC.Controllers
                         firstName = dr["FirstName"].ToString(),
                         lastName = dr["LastName"].ToString(),
                         email = dr["Email"].ToString(),
-                        label = dr["FirstName"] + " " + dr["LastName"] + " (" + dr["Email"] + ")",
+                        label = dr["FirstName"] + " " + dr["LastName"], // Only name and surname
                         imagePath = dr["ImagePath"]?.ToString() ?? ""
                     });
                 }
