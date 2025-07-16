@@ -44,7 +44,7 @@ namespace Registration_MVC.Controllers
                     con.Open();
                     SqlCommand cmd = new("sp_InsertOrUpdateUser", con);
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@UserID", DBNull.Value); // Insert
+                    cmd.Parameters.AddWithValue("@UserID", DBNull.Value);
                     cmd.Parameters.AddWithValue("@FirstName", data.FirstName);
                     cmd.Parameters.AddWithValue("@LastName", data.LastName);
                     cmd.Parameters.AddWithValue("@DOB", DateTime.Parse(data.DOB));
@@ -58,14 +58,13 @@ namespace Registration_MVC.Controllers
                         }
                     }
                 }
-                // Save login info (email and password, hash password)
                 string hashedPassword = HashPassword(data.Password);
                 using (SqlConnection con = new(_config.GetConnectionString("DefaultConnection")))
                 {
                     con.Open();
                     SqlCommand cmd = new("sp_InsertOrUpdateUserLogin", con);
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@UserID", newUserId); // Pass the new UserID
+                    cmd.Parameters.AddWithValue("@UserID", newUserId);
                     cmd.Parameters.AddWithValue("@Email", data.Email);
                     cmd.Parameters.AddWithValue("@Password", hashedPassword);
                     cmd.ExecuteNonQuery();
@@ -138,7 +137,6 @@ namespace Registration_MVC.Controllers
         {
             try
             {
-                // Get the image path for the user
                 string? imagePath = null;
                 using (SqlConnection con = new(_config.GetConnectionString("DefaultConnection")))
                 {
@@ -152,7 +150,6 @@ namespace Registration_MVC.Controllers
                         imagePath = dr["ImagePath"]?.ToString();
                     }
                 }
-                // Delete the image file if it exists and is not empty
                 if (!string.IsNullOrEmpty(imagePath))
                 {
                     string filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imagePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
@@ -161,7 +158,6 @@ namespace Registration_MVC.Controllers
                         System.IO.File.Delete(filePath);
                     }
                 }
-                // Delete the user from the database
                 using (SqlConnection con = new(_config.GetConnectionString("DefaultConnection")))
                 {
                     con.Open();
@@ -191,11 +187,8 @@ namespace Registration_MVC.Controllers
                 Console.WriteLine($"ProfilePic: {(ProfilePic == null ? "Null" : "Provided")}");
 
                 string newImagePath = ImagePath;
-
-                // Handle new image upload if provided
                 if (ProfilePic != null)
                 {
-                    // Delete old image if it exists and is not default
                     if (!string.IsNullOrEmpty(ImagePath) && !ImagePath.EndsWith("default.png"))
                     {
                         string oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", ImagePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
@@ -262,7 +255,7 @@ namespace Registration_MVC.Controllers
                         firstName = dr["FirstName"].ToString(),
                         lastName = dr["LastName"].ToString(),
                         email = dr["Email"].ToString(),
-                        label = dr["FirstName"] + " " + dr["LastName"], // Only name and surname
+                        label = dr["FirstName"] + " " + dr["LastName"],
                         imagePath = dr["ImagePath"]?.ToString() ?? ""
                     });
                 }
